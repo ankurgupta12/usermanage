@@ -1,0 +1,8 @@
+{
+    "development": {
+        "PORT": 3000,
+            "MONGODB_URI": "mongodb://usermanagment:Ankur1234@ds263380.mlab.com:63380/mongoapplication"
+            
+    }
+    
+}
