@@ -4,7 +4,7 @@ var app = express();
 var cors = require('cors');
 var md5 = require('md5');
 var bodyParser = require('body-parser');
-var config = require('./config/config.json');
+var config = require('config.json');
 
 var expressJWT = require('express-jwt');
 process.env.NODE_ENV = 'development';
@@ -21,8 +21,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // jwt token
-
-app.use('/userReg', require('./controller/userRegistration'));
+var regPost = require('./controller/userRegistration');
+app.use('/', regPost);
 
 app.listen(port, () => {
     console.log('started on port' + port);
