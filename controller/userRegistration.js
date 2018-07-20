@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var userRegistrationService = require('services/userReg.service');
+var userRegistrationService = require('./../services/userReg.service');
 router.post('/', registartion);
 module.exports = router;
 
@@ -11,7 +11,7 @@ function registartion(req, res) {
         return false;
     }
     console.log(req.body);
-    userRegistrationService.registartion(req.body).then((user) => {
+    userRegistrationService.registration(req.body).then((user) => {
         if (user) {
             res.send({user,message:'registartion Successfully!...'});
         } else {
