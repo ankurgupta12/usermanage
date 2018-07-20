@@ -1,8 +1,8 @@
-var config = require('config.json');
+var config = require('./../config/config.json');
 var Q = require('q');
 var _ = require('lodash');
 var mongo = require('mongoskin');
-var db = mongo.db(config.db,{native_parser:true});
+var db = mongo.db(config.development.MONGO_DB_URI,{native_parser:true});
 db.bind('registraion');
 var service = {};
 service.registration = registration;
