@@ -12,13 +12,13 @@ function registartion(req, res) {
     }
     console.log(req.body);
     userRegistrationService.registration(req.body).then((user) => {
+        console.log('user',user);
         if (user) {
             res.send({user,message:'registartion Successfully!...'});
         } else {
             res.status(400).send({ "error": 'user is not saved In DB' });
         }
-    })
-        .catch((err) => {
+    }).catch((err) => {
             res.status(400).send(err);
         })
 }
