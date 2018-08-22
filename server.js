@@ -23,6 +23,7 @@ app.use(bodyParser.json());
 // jwt token
 var regPost = require('./controller/userRegistration');
 app.use('/', regPost);
+app.use('/validate',regPost);
 
 app.listen(port, () => {
     console.log('started on port' + port);

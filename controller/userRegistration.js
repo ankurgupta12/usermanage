@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var userRegistrationService = require('./../services/userReg.service');
 router.post('/', registartion);
+router.post('/validate',validateOtp);
 module.exports = router;
 
 function registartion(req, res) {
@@ -9,16 +10,12 @@ function registartion(req, res) {
         || !req.body.password || !req.body.email) {
         res.status(200).send('{"error":Required param not found}');
         return false;
-    }
-    console.log(req.body);
-    userRegistrationService.registration(req.body).then((user) => {
-        console.log('user',user);
-        if (user) {
-            res.send({user,message:'registartion Successfully!...'});
-        } else {
-            res.status(400).send({ "error": 'user is not saved In DB' });
-        }
-    }).catch((err) => {
-            res.status(400).send(err);
-        })
+    }    
+    userRegistrationService.registration(req.body).then(function(user,err) {
+      if(user){
+            res.status(200).send({user:user.ops,message:'otp Sent SuccessFully To your Email Please Check Your Email for registration!...'});
+      }else {
+        res.status(400).send("error in service");
+      }
+    })
 }
