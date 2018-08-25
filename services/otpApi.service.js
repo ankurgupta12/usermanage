@@ -21,167 +21,38 @@ var db = mongo.connection;
 //db.bind('registraion');
 var bcrypt = require('bcryptjs');
 var otpservice = {};
-
-otpservice.generate = generate;
 otpservice.validate = validate;
-//otpservice.sendmail = sendmail;
-//otpservice.sendMailAPI = sendMailAPI;
 module.exports = otpservice;
 
-function generate(userObject) {
+function validate(body) {
     var deferred = Q.defer();
-    db.collection('registraion').findOne({ username: userObject.username, mobileno: userObject.mobileno }, function(err, user) {
-        if (user) {
-            // user exists
-            deferred.reject({ "name": username, "message": "user already exists" });
-        } else {
-            var otp = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-            var mailOptions = {
-                from: 'ankrgpta.bhpr@gmail.com', // sender address
-                to: userObject.email, // list of receivers
-                subject: 'Registration for Gupta ji', // Subject line
-                html: '<p>your OTP is' + otp + '.Please enter the otp for SuccessFully Registration.' + '</p>' // plain text body
-            };
-            var dte = new Date();
-            dte.setTime(dte.getTime() + (dte.getTimezoneOffset() + 330) * 60 * 1000);
-            transporter.sendMail(mailOptions, function(err, info) {
-                 console.log(err, info, 'err');
-                if (err) {
-                    // return false;
-                } else {
-                    info['otp'] = otp;
-                    db.collection('otp').insert({
-                        username: userObject.username,
-                        mobileno: userObject.mobileno,
-                        otp: response.otp,
-                        timestamp: dte.toLocaleString(),
-                        apiresponse: response.messageId
-                    }, function(err, success) {
-                        console.log(success, err);
-                        if (err) deferred.reject(err.name + ': ' + err.message);
-
-                        deferred.resolve(info);
-
-                    });
-                    //return true;
-                }
-            });
-            // otpresponse = makeAPICall(userObject);
-            // console.log(otpresponse);
-            var dte = new Date();
-            // dte.setTime(dte.getTime() + (dte.getTimezoneOffset() + 330) * 60 * 1000);
-            // otpresponse.then(function(response) {
-                // console.log(response, 'response');
-                // db.collection('otp').insert({
-                //     username: userObject.username,
-                //     mobileno: userObject.mobileno,
-                //     otp: response.otp,
-                //     timestamp: dte.toLocaleString(),
-                //     apiresponse: response.messageId
-                // }, function(err, success) {
-                //     console.log(success, err);
-                //     if (err) deferred.reject(err.name + ': ' + err.message);
-
-                //     deferred.resolve(response);
-
-                // });
-
-            // }).catch(function(err) {
-            //     deferred.reject({ "name": userObject.username, "message": err })
-            // });
-        }
-    });
-    return deferred.promise;
-}
-
-function validate(username, otp) {
-    var deferred = Q.defer();
-    db.otp.findOne({
-        username: username,
-        otp: otp
+    db.collection('otp').findOne({
+        username: body.username,
+        otp: body.otp
     }, function(err, success) {
+        console.log(err,success);
         if (err) {
-            db.otp.remove({ "username": username });
+            db.collection('otp').remove({ "username": body.username });
             deferred.reject(err.name + ': ' + err.message);
         }
         if (success) {
-            db.collection('registraion').update({ 'username': username }, {
+            var dte = new Date();
+            dte.setTime(dte.getTime() + (dte.getTimezoneOffset() + 330) * 60 * 1000);
+            var difference = parseInt(dte.getTime()- new Date(success.timestamp).getTime(),10); 
+            var minutesDifference = Math.floor(difference / 1000 / 60);
+            if(minutesDifference <= config.validTimeInterval){
+            db.collection('registraion').update({ 'username': body.username }, {
                 $set: { "isValid": true }
             }, function(err, validUser) {
                 if (err) deferred.reject(err.name + ': ' + err.message);
-                if (success) {
-
-                }
-            });
-
-            // authentication successful
-            db.otp.update({ "name": username }, {
-                $set: { "status": "verified" }
-            }, function(err, success) {
-                if (err) deferred.reject(err.name + ': ' + err.message);
-                if (success) {
-                    deferred.resolve({
-                        username: username,
-                        status: "verified"
-                    });
-                }
+                deferred.resolve({message:'' +body.username +"successfully Registered..."})
             });
         } else {
-            // otp failed
-            db.otp.remove({ "username": username });
-            deferred.reject({
-                name: username,
-                message: "failed"
-            });
+            db.collection('otp').remove({ "username": body.username });
+         deferred.resolve({message: "otp is expired"});      
         }
+
+    }   
     });
     return deferred.promise;
-}
-
-// function makeAPICall(userObject) {
-//     var deferred = Q.defer();
-// var otp = otpGenerator.generate(6, { upperCase: false, specialChars: false,alphabets :false });
-//     var mailOptions = {
-//   from: 'ankrgpta.bhpr@gmail.com', // sender address
-//   to: userObject.email, // list of receivers
-//   subject: 'Registration for Gupta ji', // Subject line
-//   html: '<p>your OTP is'+ otp +'.Please enter the otp for SuccessFully Registration.'+'</p>'// plain text body
-// };
-//     transporter.sendMail(mailOptions, function (err, info) {
-//    if(err) {
-//      deferred.reject(err);
-//      console.log(err,'err');
-//    }
-//    else{
-//     info['otp'] = otp;
-//     deferred.resolve(info);
-//     console.log(info,'info');
-// }
-// });
-//      return deferred.promise;
-// }
-
-function makeAPICall(userObject) {
-
-    var otp = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-    var mailOptions = {
-        from: 'ankrgpta.bhpr@gmail.com', // sender address
-        to: userObject.email, // list of receivers
-        subject: 'Registration for Gupta ji', // Subject line
-        html: '<p>your OTP is' + otp + '.Please enter the otp for SuccessFully Registration.' + '</p>' // plain text body
-    };
-    transporter.sendMail(mailOptions, function(err, info) {
-        console.log(err, info, 'err');
-        if (err) {
-
-            console.log(err, 'err');
-            return false;
-        } else {
-            info['otp'] = otp;
-            console.log(info, 'info');
-            return true;
-
-        }
-    });
-
 }

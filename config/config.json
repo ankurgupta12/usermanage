@@ -7,7 +7,8 @@
      "secret": "REPLACE THIS WITH YOUR OWN SECRET, IT CAN BE ANY STRING",
      "authKey":"ACd1ce4f20df373256f1fc6f385ef21d7f",
      "authToken":"4b433ebe1aebc148bae4a738f57be26d",
-     "apiKey":"1nAKa1yR9shhUT0orG0kolVMqvTLEH9q"
+     "apiKey":"1nAKa1yR9shhUT0orG0kolVMqvTLEH9q",
+     "validTimeInterval":30
 
     
 }
