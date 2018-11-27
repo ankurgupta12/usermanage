@@ -15,6 +15,7 @@ function registartion(req, res) {
     }    
     userRegistrationService.registration(req.body).then(function(user,err) {
       if(user){
+        console.log(user,'user');
             res.status(200).send({user:user.ops,message:'otp Sent SuccessFully To your Email Please Check Your Email for registration!...'});
       }else {
         res.status(400).send("error in service");
